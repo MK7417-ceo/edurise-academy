@@ -1,0 +1,24 @@
+# Render Blueprint — one-click deploy of the EduRise Academy backend (FastAPI).
+# In the Render dashboard: New → Blueprint → select the edurise-academy repo.
+# Name the service `edurise-academy-api` so its URL becomes
+# https://edurise-academy-api.onrender.com (used by the Vercel frontend).
+services:
+  - type: web
+    name: edurise-academy-api
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: CORS_ORIGINS
+        value: https://edurise-academy.vercel.app
+      - key: KNOWLEDGE_BASE_PATH
+        value: ./data/knowledge-base.json
+      - key: DATABASE_PATH
+        value: ./data/edurise.db
+      - key: ADMIN_USERNAME
+        value: admin
+      # NOTE: change ADMIN_PASSWORD in the Render dashboard after deploy.
+      - key: ADMIN_PASSWORD
+        value: edurise123
