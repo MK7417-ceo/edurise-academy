@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: edurise-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the SQLite database and allow editing the knowledge base live
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /app/data/edurise.db
+      KNOWLEDGE_BASE_PATH: /app/data/knowledge-base.json
+      BACKEND_URL: http://backend:8000
+      CORS_ORIGINS: http://localhost:3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    container_name: edurise-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Server components reach the backend over the compose network
+      BACKEND_URL: http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

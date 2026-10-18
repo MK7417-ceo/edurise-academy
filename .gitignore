@@ -1,0 +1,37 @@
+# Secrets & local config
+.env
+.env.local
+.env.*.local
+
+# Databases (created locally)
+*.db
+*.db-journal
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+backend-venv/
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+
+# Docker
+.docker/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
