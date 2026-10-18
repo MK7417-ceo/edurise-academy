@@ -19,6 +19,7 @@ services:
         value: ./data/edurise.db
       - key: ADMIN_USERNAME
         value: admin
-      # NOTE: change ADMIN_PASSWORD in the Render dashboard after deploy.
+      # No default password is committed. Render prompts for this value
+      # when the Blueprint is applied (sync: false).
       - key: ADMIN_PASSWORD
-        value: edurise123
+        sync: false
