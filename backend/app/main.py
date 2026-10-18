@@ -1,5 +1,6 @@
 """EduRise Academy API — FastAPI backend."""
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,8 +14,17 @@ from .services.knowledge import load_kb
 log = logging.getLogger("edurise")
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    kb = load_kb()  # fail fast if the knowledge base is broken
+    mode = "ai" if settings.ai_enabled else "mock"
+    log.info("EduRise API ready — %d courses, chatbot mode=%s", len(kb["courses"]), mode)
+    yield
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0")
+    app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)
 
     app.add_middleware(
         CORSMiddleware,
@@ -39,16 +49,6 @@ def create_app() -> FastAPI:
     app.include_router(chat.router, prefix=prefix)
     app.include_router(enquiries.router, prefix=prefix)
     app.include_router(admin.router, prefix=prefix)
-
-    @app.on_event("startup")
-    def _startup():
-        Base.metadata.create_all(bind=engine)
-        kb = load_kb()  # fail fast if the knowledge base is broken
-        mode = "ai" if settings.ai_enabled else "mock"
-        log.info(
-            "EduRise API ready — %d courses, chatbot mode=%s",
-            len(kb["courses"]), mode,
-        )
 
     return app
 
